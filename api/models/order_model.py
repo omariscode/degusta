@@ -13,7 +13,7 @@ class Order(models.Model):
     customer = models.ForeignKey('api.User', on_delete=models.CASCADE, related_name='orders')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="pending")
     total = models.DecimalField(max_digits=10, decimal_places=2)
-    delivery_address = models.CharField(max_length=255)  
+    delivery_address = models.CharField(max_length=500)  
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

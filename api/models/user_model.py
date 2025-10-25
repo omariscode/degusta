@@ -29,7 +29,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     phone = models.CharField(max_length=9, unique=True)
     verification_code = models.CharField(max_length=6, blank=True, null=True)
     code_generated_at = models.DateTimeField(null=True, blank=True)
-    is_active = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
 
     objects = UserManager()

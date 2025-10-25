@@ -13,7 +13,8 @@ class InvoicePDFView(views.APIView):
         context = {
             'user': request.user,
             'items': [
-                {'name': 'Demo product', 'qty': 1, 'price': '10.00'},
+                {'name': 'Demo product', 'qty': 1, 'price': 10.00},
+                {'name': 'Demo product', 'qty': 4, 'price': 100.00},
             ],
             'total': '10.00'
         }

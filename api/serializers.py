@@ -7,13 +7,32 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = user_model.User
-        fields = ['id', 'email', 'name', 'phone', 'is_active', 'is_staff', 'password']
+        fields = ['id', 'email', 'name', 'phone', 'is_active', 'password']
 
     def create(self, validated_data):
         password = validated_data.pop('password')
         user = user_model.User.objects.create(**validated_data)
         user.set_password(password)
         user.is_active = True
+        user.save()
+        return user
+
+
+
+class AdminRegisterSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True, required=True)
+
+    class Meta:
+        model = user_model.User
+        fields = ['id', 'email', 'name', 'phone', 'password']
+
+    def create(self, validated_data):
+        password = validated_data.pop('password')
+        user = user_model.User.objects.create(**validated_data)
+        user.set_password(password)
+        user.is_active = True
+        user.is_staff = True
+        user.is_superuser = True
         user.save()
         return user
 
@@ -34,3 +53,18 @@ class OrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = order_model.Order
         fields = '__all__'
+
+
+class OrderItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = order_model.OrderItem
+        fields = ['id', 'product', 'qty', 'price']
+
+
+class OrderDetailSerializer(serializers.ModelSerializer):
+    items = OrderItemSerializer(many=True, read_only=True)
+    customer = UserSerializer(read_only=True)
+
+    class Meta:
+        model = order_model.Order
+        fields = ['id', 'customer', 'status', 'total', 'delivery_address', 'created_at', 'items']

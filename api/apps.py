@@ -6,8 +6,7 @@ class ApiConfig(AppConfig):
     name = 'api'
 
     def ready(self):
-        # Import signals to register them
         try:
-            from . import signals  # noqa: F401
+            from . import signals 
         except Exception:
             pass
