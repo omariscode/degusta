@@ -31,6 +31,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     code_generated_at = models.DateTimeField(null=True, blank=True)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
+    data_joined = models.DateTimeField(auto_now_add=True)
 
     objects = UserManager()
 

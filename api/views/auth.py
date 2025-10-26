@@ -30,3 +30,11 @@ class RegisterView(generics.CreateAPIView):
 
 class LoginView(TokenObtainPairView):
     permission_classes = [permissions.AllowAny]
+
+
+class GetMeView(generics.RetrieveAPIView):
+    serializer_class = local_serializers.UserSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_object(self):
+        return self.request.user

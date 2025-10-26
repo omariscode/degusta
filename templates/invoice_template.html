@@ -1,31 +1,324 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="pt-BR">
 <head>
-  <meta charset="utf-8">
-  <title>Invoice</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Invoice - Fatura</title>
   <style>
-    body { font-family: Arial, sans-serif; }
-    table { width: 100%; border-collapse: collapse; }
-    th, td { border: 1px solid #ddd; padding: 8px; }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+        
+    body {
+      background-color: #f8f9fa;
+      color: #333;
+      line-height: 1.6;
+      padding: 20px;
+    }
+        
+    .invoice-container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+        
+    .invoice-header {
+      width: 100%;
+      padding: 30px;
+      background: #6a11cb;
+      color: white;
+      overflow: hidden;
+    }
+        
+    .logo-section {
+      width: 60%;
+      float: left;
+    }
+        
+    .logo-placeholder {
+      float: left;
+      margin-right: 20px;
+    }
+        
+    .logo-placeholder img { 
+      width: 120px; 
+      height: 120px; 
+      object-fit: contain;
+    }
+        
+    .company-info {
+      float: left;
+      padding-top: 10px;
+    }
+        
+    .company-info h1 {
+      font-size: 24px;
+      margin-bottom: 5px;
+    }
+        
+    .invoice-title {
+      width: 35%;
+      float: right;
+      text-align: right;
+    }
+
+    .invoice-title h2 {
+      font-size: 28px;
+      margin-bottom: 10px;
+    }
+        
+    .invoice-details {
+      width: 100%;
+      padding: 30px;
+      background: #f8f9fa;
+      overflow: hidden;
+    }
+        
+    .section {
+      width: 48%;
+      margin-bottom: 20px;
+      float: left;
+    }
+        
+    .section:first-child {
+      margin-right: 4%;
+    }
+        
+    .section-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: #6a11cb;
+      border-bottom: 1px solid #eaeaea;
+      padding-bottom: 5px;
+    }
+        
+    .info-item {
+      margin-bottom: 8px;
+      display: flex;
+    }
+        
+    .info-label {
+      font-weight: 600;
+      min-width: 120px;
+    }
+        
+    .products-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+      border: 1px solid #eaeaea;
+    }
+        
+    .products-table th {
+      background: #f1f3f5;
+      padding: 12px 15px;
+      text-align: left;
+      font-weight: 600;
+      color: #495057;
+      border: 1px solid #eaeaea;
+    }
+        
+    .products-table td {
+      padding: 12px 15px;
+      border: 1px solid #eaeaea;
+      background: white;
+    }
+        
+    .products-table tr:nth-child(even) td {
+      background: #f8f9fa;
+    }
+        
+    .text-right {
+      text-align: right;
+    }
+        
+    .text-center {
+      text-align: center;
+    }
+        
+    .totals-section {
+      padding: 20px 30px;
+      background: #f8f9fa;
+      border-top: 1px solid #eaeaea;
+    }
+        
+    .total-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      padding: 5px 0;
+    }
+        
+    .total-final {
+      font-size: 18px;
+      font-weight: 700;
+      border-top: 1px solid #ddd;
+      padding-top: 10px;
+      margin-top: 10px;
+    }
+        
+    .notes-section {
+      padding: 20px 30px;
+      border-top: 1px solid #eaeaea;
+    }
+        
+    .footer {
+      padding: 20px 30px;
+      text-align: center;
+      background: #f1f3f5;
+      color: #6c757d;
+      font-size: 14px;
+    }
+        
+    .action-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-top: 20px;
+    }
+        
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+        
+    .btn-primary {
+      background: #6a11cb;
+      color: white;
+    }
+        
+    .btn-primary:hover {
+      background: #5a0db3;
+    }
+        
+    .btn-secondary {
+      background: #6c757d;
+      color: white;
+    }
+        
+    .btn-secondary:hover {
+      background: #5a6268;
+    }
+        
+    @media print {
+      body {
+        background: white;
+        padding: 0;
+      }
+            
+      .invoice-container {
+        box-shadow: none;
+        border-radius: 0;
+      }
+            
+      .action-buttons {
+        display: none;
+      }
+    }
   </style>
 </head>
 <body>
-  <h1>Invoice</h1>
-  <p>Customer: {{ user.name }} ({{ user.phone }})</p>
-  <table>
-    <thead>
-      <tr><th>Item</th><th>Qty</th><th>Price</th></tr>
-    </thead>
-    <tbody>
-      {% for it in items %}
-      <tr>
-        <td>{{ it.name }}</td>
-        <td>{{ it.qty }}</td>
-        <td>{{ it.price }}</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-  <p>Total: {{ total }}</p>
+  <div class="invoice-container">
+    <div class="invoice-header">
+      <div class="logo-section">
+        <div class="logo-placeholder">
+            <img src="https://i.postimg.cc/bYLjJBfX/Degusta-removebg-preview.png" alt="logo" />
+        </div>
+        <div class="company-info">
+          <h1>Degusta</h1>
+          <p>Rua Exemplo, 123 • Luanda • Estado</p>
+          <p>contato@degusta.com • (00) 00000-0000</p>
+        </div>
+      </div>
+      <div class="invoice-title">
+        <h2>FATURA</h2>
+        <p>Nº: <strong>{{ invoice.invoice_number }}</strong></p>
+        <p>Data: <strong>{{ invoice.issued_at|date:"d/m/Y" }}</strong></p>
+      </div>
+    </div>
+        
+    <div class="invoice-details">
+      <div class="bill-to section">
+        <div class="section-title">FATURAR PARA</div>
+        <div class="info-item">
+          <span class="info-label">Nome:</span>
+          <span>{{ invoice.billing_name|default:order.customer.name }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Endereço:</span>
+          <span>{{ invoice.billing_address|default:order.delivery_address }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Email:</span>
+          <span>{{ invoice.billing_email|default:order.customer.email }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">CPF/CNPJ:</span>
+          <span>{{ invoice.billing_cpf_cnpj }}</span>
+        </div>
+      </div>
+            
+      <div class="invoice-info section">
+        <div class="section-title">INFORMAÇÕES DA FATURA</div>
+        <div class="info-item">
+          <span class="info-label">Nº da Fatura:</span>
+          <span>{{ invoice.invoice_number }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Data de Emissão:</span>
+          <span>{{ invoice.issued_at|date:"d/m/Y" }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Método de Pagamento:</span>
+          <span>—</span>
+        </div>
+      </div>
+    </div>
+        
+    <div style="padding: 0 30px;">
+      <table class="products-table">
+        <thead>
+          <tr>
+            <th>Descrição</th>
+            <th class="text-center">Quantidade</th>
+            <th class="text-right">Preço Unitário</th>
+            <th class="text-right">Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for it in items %}
+          <tr>
+            <td>{{ it.name }}</td>
+            <td class="text-center">{{ it.qty }}</td>
+            <td class="text-right">R$ {{ it.price|floatformat:2 }}</td>
+            <td class="text-right">R$ {{ it.total|floatformat:2 }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+        
+    <div class="totals-section">
+      <div class="total-row total-final">
+        <span>TOTAL:</span>
+        <span>R$ {{ invoice.total|floatformat:2 }}</span>
+      </div>
+    </div>        
+    <div class="footer">
+      <p>Obrigado pela preferência!</p>
+      <p>Degusta • contato@degusta.com • (00) 00000-0000</p>
+    </div>
+  </div>
 </body>
 </html>

@@ -3,10 +3,14 @@ from rest_framework.response import Response
 from django.db import transaction
 from django.template.loader import render_to_string
 import os
+import subprocess
+import tempfile
+from django.conf import settings
 
 from ..models import product_model, order_model, invoice_model
 from ..serializers import OrderDetailSerializer
 from ..utils import sms
+from ..cloud import upload_to_cloudinary_invoice
 
 try:
     import pdfkit
@@ -19,18 +23,11 @@ class CheckoutView(views.APIView):
 
     @transaction.atomic
     def post(self, request, format=None):
-        """Expect payload:
-        {
-            "delivery_address": "Rua X",
-            "items": [{"product": product_id, "qty": 2}, ...]
-        }
-        """
         data = request.data
         items = data.get('items', [])
         if not items:
             return Response({'detail': 'No items provided'}, status=status.HTTP_400_BAD_REQUEST)
 
-        # calculate total and check stock
         total = 0
         product_objs = {}
         for it in items:
@@ -45,44 +42,73 @@ class CheckoutView(views.APIView):
             product_objs[pid] = (p, qty)
             total += float(p.price) * qty
 
-        # create order
         order = order_model.Order.objects.create(customer=request.user, total=total, delivery_address=data.get('delivery_address', ''))
 
-        # create items and decrement stock
         for pid, (p, qty) in product_objs.items():
             order_item = order_model.OrderItem.objects.create(order=order, product=p, qty=qty, price=p.price)
             p.stock = p.stock - qty
             p.save()
 
-        # mark as paid for this example and create invoice
         order.status = 'paid'
         order.save()
 
-        # generate invoice (pdf or html) and attach to Invoice model
-        context = {'user': request.user, 'items': [{'name': i.product.name, 'qty': i.qty, 'price': str(i.price)} for i in order.items.all()], 'total': str(order.total)}
-        html = render_to_string('invoice_template.html', context)
         invoice = invoice_model.Invoice(order=order)
+        invoice.save()  
+
+        try:
+            html = invoice.render_html(request=request)
+        except Exception:
+            html = render_to_string('invoice_template.html', {
+                'user': request.user,
+                'order': order,
+                'invoice': invoice,
+                'items': [{'name': i.product.name, 'qty': i.qty, 'price': str(i.price), 'total': float(i.price) * i.qty} for i in order.items.all()],
+                'total': str(order.total)
+            })
+
+        tmp_dir = os.path.join(settings.BASE_DIR, 'tmp') if hasattr(settings, 'BASE_DIR') else 'tmp'
+        os.makedirs(tmp_dir, exist_ok=True)
+        tmp_html_path = os.path.join(tmp_dir, f'invoice_{order.id}.html')
+        with open(tmp_html_path, 'w', encoding='utf-8') as f:
+            f.write(html)
+
+        pdf_saved = False
+        
         if pdfkit:
             try:
-                pdf = pdfkit.from_string(html, False)
-                # write to a temporary file then save to model
-                tmp_path = f'tmp/invoice_{order.id}.pdf'
-                os.makedirs(os.path.dirname(tmp_path), exist_ok=True)
-                with open(tmp_path, 'wb') as f:
-                    f.write(pdf)
-                invoice.pdf.name = tmp_path
-            except Exception:
-                # fallback: save HTML as .html file
-                tmp_path = f'tmp/invoice_{order.id}.html'
-                with open(tmp_path, 'w', encoding='utf-8') as f:
-                    f.write(html)
-                invoice.pdf.name = tmp_path
-        else:
-            tmp_path = f'tmp/invoice_{order.id}.html'
-            os.makedirs(os.path.dirname(tmp_path), exist_ok=True)
-            with open(tmp_path, 'w', encoding='utf-8') as f:
-                f.write(html)
-            invoice.pdf.name = tmp_path
+                pdf_bytes = pdfkit.from_string(html, False)
+                with tempfile.NamedTemporaryFile(suffix='.pdf', delete=False) as temp_pdf:
+                    temp_pdf.write(pdf_bytes)
+                    temp_pdf_path = temp_pdf.name
+                
+                invoice.pdf_url = upload_to_cloudinary_invoice(temp_pdf_path)
+                pdf_saved = True
+                
+                os.unlink(temp_pdf_path)
+            except Exception as e:
+                print(f"pdfkit error: {e}")
+                pdf_saved = False
+
+        if not pdf_saved:
+            try:
+                with tempfile.NamedTemporaryFile(suffix='.pdf', delete=False) as temp_pdf:
+                    temp_pdf_path = temp_pdf.name
+                
+                subprocess.run(['wkhtmltopdf', tmp_html_path, temp_pdf_path], check=True)
+                
+                invoice.pdf_url = upload_to_cloudinary_invoice(temp_pdf_path)
+                pdf_saved = True
+                
+                os.unlink(temp_pdf_path)
+            except Exception as e:
+                print(f"wkhtmltopdf error: {e}")
+                pdf_saved = False
+
+        if not pdf_saved:
+            try:
+                invoice.pdf_url = upload_to_cloudinary_invoice(tmp_html_path)
+            except Exception as e:
+                print(f"HTML upload error: {e}")
 
         invoice.save()
 

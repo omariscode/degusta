@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from .models import invoice_model, order_model, product_model, user_model
+from .cloud import upload_to_cloudinary_product
+from .models import invoice_model, order_model, product_model, user_model, motoboy_model
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -16,8 +17,6 @@ class UserSerializer(serializers.ModelSerializer):
         user.is_active = True
         user.save()
         return user
-
-
 
 class AdminRegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True)
@@ -41,7 +40,6 @@ class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = product_model.Product
         fields = ['id', 'name', 'slug', 'description', 'price', 'stock', 'image']
-
 
 class InvoiceSerializer(serializers.ModelSerializer):
     class Meta:
@@ -68,3 +66,8 @@ class OrderDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = order_model.Order
         fields = ['id', 'customer', 'status', 'total', 'delivery_address', 'created_at', 'items']
+
+class CourierSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = motoboy_model.Courier
+        fields = ['id', 'name', 'phone_number', 'license_plate']

@@ -1,13 +1,13 @@
 from rest_framework import generics, permissions
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from django.db.models import Sum, Count, F, Avg
-from django.db.models.functions import TruncDay, ExtractHour
+from django.db.models import Sum, Count
+from django.db.models.functions import TruncDay
 from django.utils import timezone
 from datetime import timedelta
 
-from ..models import order_model, user_model
-from ..serializers import UserSerializer
+from ..models import order_model, user_model, motoboy_model
+from ..serializers import UserSerializer, CourierSerializer
 
 
 def calculate_trend(current, previous):
@@ -124,3 +124,16 @@ class AdminUserListView(generics.ListAPIView):
     permission_classes = [permissions.IsAdminUser]
     queryset = user_model.User.objects.all().order_by('-id')
     serializer_class = UserSerializer
+
+
+class AdminCourierListView(generics.ListAPIView):
+    permission_classes = [permissions.IsAdminUser]
+    queryset = motoboy_model.Courier.objects.all().order_by('-id')
+    serializer_class = CourierSerializer
+
+class AdminCourierCreateView(generics.CreateAPIView):
+    permission_classes = [permissions.IsAdminUser]
+    serializer_class = CourierSerializer
+    queryset = motoboy_model.Courier.objects.all()
+
+    
