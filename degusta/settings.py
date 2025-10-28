@@ -11,8 +11,11 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 import os
+from dotenv import load_dotenv
 from pathlib import Path
 from datetime import timedelta
+
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -41,6 +44,7 @@ INSTALLED_APPS = [
     'api',
     'rest_framework',
     'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist',
     'corsheaders'
 ]
 
@@ -105,8 +109,12 @@ ASGI_APPLICATION = 'degusta.asgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': os.getenv('AIVEN_ENGINE'),
+        'NAME': os.getenv('AIVEN_NAME'),
+        'USER': os.getenv('AIVEN_USER'),
+        'PASSWORD': os.getenv('AIVEN_PASSWORD'),
+        'HOST': os.getenv('AIVEN_HOST'),
+        'PORT': os.getenv('AIVEN_PORT'),
     }
 }
 

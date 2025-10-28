@@ -14,6 +14,7 @@ urlpatterns = [
 	path('auth/admin/login/', auth_views.AdminLoginView.as_view(), name='auth-admin-login'),
 	path('auth/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 	path('auth/me/', auth_views.GetMeView.as_view(), name='auth-me'),
+    path("auth/logout/", auth_views.LogoutView.as_view(), name="logout"),
 
 	path('get-products/', product_views.ProductListView.as_view(), name='product-list-create'),
     path('admin/product/', product_views.create_product, name='product-create'),

@@ -1,7 +1,9 @@
 from rest_framework import generics, permissions, status, serializers
 from rest_framework.response import Response
+from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.tokens import RefreshToken
 from api import serializers as local_serializers
 
 
@@ -31,6 +33,18 @@ class RegisterView(generics.CreateAPIView):
 class LoginView(TokenObtainPairView):
     permission_classes = [permissions.AllowAny]
 
+class LogoutView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        try:
+            refresh_token = request.data["refresh"]
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+
+            return Response({"detail": "Logout efetuado com sucesso"}, status=status.HTTP_205_RESET_CONTENT)
+        except Exception:
+            return Response({"detail": "Token inválido"}, status=status.HTTP_400_BAD_REQUEST)
 
 class GetMeView(generics.RetrieveAPIView):
     serializer_class = local_serializers.UserSerializer
