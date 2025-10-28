@@ -54,6 +54,11 @@ class OrderSerializer(serializers.ModelSerializer):
         model = order_model.Order
         fields = '__all__'
 
+    def get_invoice(self, obj):
+        if hasattr(obj, 'invoice') and obj.invoice:
+            return obj.invoice.pdf_url
+        return None
+
 
 class OrderItemSerializer(serializers.ModelSerializer):
     class Meta:
@@ -69,6 +74,11 @@ class OrderDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = order_model.Order
         fields = ['id', 'customer', 'status', 'total', 'delivery_address', 'invoice', 'created_at', 'items']
+
+    def get_invoice(self, obj):
+        if hasattr(obj, 'invoice') and obj.invoice:
+            return obj.invoice.pdf_url
+        return None
 
 class CourierSerializer(serializers.ModelSerializer):
     class Meta:
