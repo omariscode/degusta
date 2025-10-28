@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .cloud import upload_to_cloudinary_product
+from .utils.cloud import upload_to_cloudinary_product
 from .models import invoice_model, order_model, product_model, user_model, motoboy_model
 
 
@@ -48,6 +48,8 @@ class InvoiceSerializer(serializers.ModelSerializer):
 
 
 class OrderSerializer(serializers.ModelSerializer):
+    invoice = InvoiceSerializer(read_only=True)
+
     class Meta:
         model = order_model.Order
         fields = '__all__'
@@ -62,10 +64,11 @@ class OrderItemSerializer(serializers.ModelSerializer):
 class OrderDetailSerializer(serializers.ModelSerializer):
     items = OrderItemSerializer(many=True, read_only=True)
     customer = UserSerializer(read_only=True)
+    invoice = InvoiceSerializer(read_only=True)
 
     class Meta:
         model = order_model.Order
-        fields = ['id', 'customer', 'status', 'total', 'delivery_address', 'created_at', 'items']
+        fields = ['id', 'customer', 'status', 'total', 'delivery_address', 'invoice', 'created_at', 'items']
 
 class CourierSerializer(serializers.ModelSerializer):
     class Meta:

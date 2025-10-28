@@ -2,7 +2,7 @@ from django.db import models
 from django.template.loader import render_to_string
 from django.utils import timezone
 from django.conf import settings
-from ..cloud import upload_to_cloudinary_invoice
+from ..utils.cloud import upload_to_cloudinary_invoice
 import uuid
 import tempfile
 

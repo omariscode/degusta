@@ -4,13 +4,12 @@ from django.db import transaction
 from django.template.loader import render_to_string
 import os
 import subprocess
-import tempfile
 from django.conf import settings
 
 from ..models import product_model, order_model, invoice_model
 from ..serializers import OrderDetailSerializer
 from ..utils import sms
-from ..cloud import upload_to_cloudinary_invoice
+from ..utils.cloud import upload_to_cloudinary_invoice
 
 try:
     import pdfkit
@@ -73,33 +72,26 @@ class CheckoutView(views.APIView):
             f.write(html)
 
         pdf_saved = False
-        
         if pdfkit:
             try:
                 pdf_bytes = pdfkit.from_string(html, False)
-                with tempfile.NamedTemporaryFile(suffix='.pdf', delete=False) as temp_pdf:
-                    temp_pdf.write(pdf_bytes)
-                    temp_pdf_path = temp_pdf.name
-                
-                invoice.pdf_url = upload_to_cloudinary_invoice(temp_pdf_path)
+                tmp_pdf_path = os.path.join(tmp_dir, f'invoice_{order.id}.pdf')
+                with open(tmp_pdf_path, 'wb') as f:
+                    f.write(pdf_bytes)
+                invoice.pdf_url = upload_to_cloudinary_invoice(tmp_pdf_path)
                 pdf_saved = True
-                
-                os.unlink(temp_pdf_path)
+                os.unlink(tmp_pdf_path)
             except Exception as e:
                 print(f"pdfkit error: {e}")
                 pdf_saved = False
 
         if not pdf_saved:
             try:
-                with tempfile.NamedTemporaryFile(suffix='.pdf', delete=False) as temp_pdf:
-                    temp_pdf_path = temp_pdf.name
-                
-                subprocess.run(['wkhtmltopdf', tmp_html_path, temp_pdf_path], check=True)
-                
-                invoice.pdf_url = upload_to_cloudinary_invoice(temp_pdf_path)
+                tmp_pdf_path = os.path.join(tmp_dir, f'invoice_{order.id}.pdf')
+                subprocess.run(['wkhtmltopdf', tmp_html_path, tmp_pdf_path], check=True)
+                invoice.pdf_url = upload_to_cloudinary_invoice(tmp_pdf_path)
                 pdf_saved = True
-                
-                os.unlink(temp_pdf_path)
+                os.unlink(tmp_pdf_path)
             except Exception as e:
                 print(f"wkhtmltopdf error: {e}")
                 pdf_saved = False
@@ -112,7 +104,6 @@ class CheckoutView(views.APIView):
 
         invoice.save()
 
-        # notify motoqueiros (placeholder)
         sms.send_sms('923000000', f'Novo pedido #{order.id} - {order.total}')
 
         return Response(OrderDetailSerializer(order).data, status=status.HTTP_201_CREATED)
