@@ -301,8 +301,8 @@
           <tr>
             <td>{{ it.name }}</td>
             <td class="text-center">{{ it.qty }}</td>
-            <td class="text-right">R$ {{ it.price|floatformat:2 }}</td>
-            <td class="text-right">R$ {{ it.total|floatformat:2 }}</td>
+            <td class="text-right"> {{ it.price|floatformat:2 }}Kz</td>
+            <td class="text-right"> {{ it.total|floatformat:2 }}Kz</td>
           </tr>
           {% endfor %}
         </tbody>
@@ -312,7 +312,7 @@
     <div class="totals-section">
       <div class="total-row total-final">
         <span>TOTAL:</span>
-        <span>R$ {{ invoice.total|floatformat:2 }}</span>
+        <span> {{ invoice.total|floatformat:2 }}Kz</span>
       </div>
     </div>        
     <div class="footer">
