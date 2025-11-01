@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import auth as auth_views
-from .views import product_views, admin_views, motoboy_view
+from .views import product_views, admin_views, motoboy_view, source_views
 from .views import order_views
 from rest_framework_simplejwt.views import (
 	TokenObtainPairView,
@@ -25,6 +25,8 @@ urlpatterns = [
     path('admin/delete-motoboy/<int:pk>/', motoboy_view.MotoboyDelete.as_view(), name='Delete-Motoboy'),    
 	
 	path('admin/stats/', admin_views.AdminStatsView.as_view(), name='admin-stats'),
+    path('admin/sources/', source_views.GetReferralStatsView.as_view(), name='admin-get-sources'),
+    path('sources/', source_views.PostReferralStatsView.as_view(), name='Create-Source'),
 	path('admin/users/', admin_views.AdminUserListView.as_view(), name='admin-user-list'),
 	# orders / checkout
 	path('checkout/', order_views.CheckoutView.as_view(), name='checkout'),
