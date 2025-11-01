@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import auth as auth_views
-from .views import product_views, invoice_views, admin_views, motoboy_view
+from .views import product_views, admin_views, motoboy_view
 from .views import order_views
 from rest_framework_simplejwt.views import (
 	TokenObtainPairView,
