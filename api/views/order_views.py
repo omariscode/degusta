@@ -20,9 +20,19 @@ class CheckoutView(views.APIView):
 
 
 class OrderDetailView(generics.RetrieveAPIView):
+    lookup_field = 'pk'
+
     permission_classes = [permissions.IsAuthenticated]
     queryset = order_model.Order.objects.all()
     serializer_class = OrderDetailSerializer
+
+class OrderList(generics.ListAPIView):
+    permission_classes = [permissions.IsAdminUser]
+    queryset = order_model.Order.objects.all()
+    serializer_class = OrderDetailSerializer
+
+    def get_queryset(self):
+        return order_model.Order.objects.all().order_by('-created_at')
 
 
 class MyOrdersView(generics.ListAPIView):

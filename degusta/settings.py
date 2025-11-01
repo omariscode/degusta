@@ -45,16 +45,9 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
-    'corsheaders'
+    'corsheaders',
+    'channels'
 ]
-
-# Optional: channels for realtime notifications (skeleton)
-try:
-    import channels  # noqa: F401
-    INSTALLED_APPS.append('channels')
-except Exception:
-    # channels not installed; it's optional for now
-    pass
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(days=7),
@@ -158,6 +151,7 @@ REST_FRAMEWORK = {
 }
 
 # Minimal channel layer when channels is installed; memory layer for development
+ASGI_APPLICATION = 'degusta.asgi.application'
 CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels.layers.InMemoryChannelLayer'

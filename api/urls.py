@@ -19,15 +19,16 @@ urlpatterns = [
 	path('get-products/', product_views.ProductListView.as_view(), name='product-list-create'),
     path('admin/product/', product_views.create_product, name='product-create'),
 	path('products/<int:pk>/', product_views.ProductDetailView.as_view(), name='product-detail'),
-
-	path('invoice/pdf/', invoice_views.InvoicePDFView.as_view(), name='invoice-pdf'),
     
 	path('admin/motoboys/', motoboy_view.MotoboyListCreateView.as_view(), name='motoboy-list-create'),
+    path('admin/update-motoboy/<int:pk>', motoboy_view.MotoboyUpdate.as_view(), name='Update-Motoboy'),
+    path('admin/delete-motoboy/<int:pk>/', motoboy_view.MotoboyDelete.as_view(), name='Delete-Motoboy'),    
 	
 	path('admin/stats/', admin_views.AdminStatsView.as_view(), name='admin-stats'),
 	path('admin/users/', admin_views.AdminUserListView.as_view(), name='admin-user-list'),
 	# orders / checkout
 	path('checkout/', order_views.CheckoutView.as_view(), name='checkout'),
 	path('orders/<int:pk>/', order_views.OrderDetailView.as_view(), name='order-detail'),
+    path('admin/orders/', order_views.OrderList.as_view(), name='list-order'),
 	path('my-orders/', order_views.MyOrdersView.as_view(), name='my-orders'),
 ]

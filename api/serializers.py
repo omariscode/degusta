@@ -1,5 +1,6 @@
+import re
 from rest_framework import serializers
-from .utils.cloud import upload_to_cloudinary_product
+from rest_framework.exceptions import ValidationError
 from .models import invoice_model, order_model, product_model, user_model, motoboy_model
 
 
@@ -9,6 +10,20 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = user_model.User
         fields = ['id', 'email', 'name', 'phone', 'is_active', 'password']
+
+    def validate_phone(self, value):
+        number = re.sub(r'\D', '', value)
+
+        if len(number) > 9:
+            raise ValidationError("Phone number cannot exceed 9 digits.")
+        
+        if not re.match(r'^(92|93|94|97)\d{7}$', number):
+            raise ValidationError("Number must be Unitel (starts with 92, 93, 94 ou 97) and must have 9 digits total.")
+        
+        if not number.isdigit():
+             raise ValidationError("Phone number must contain only digits.")
+
+        return number
 
     def create(self, validated_data):
         password = validated_data.pop('password')
@@ -84,3 +99,17 @@ class CourierSerializer(serializers.ModelSerializer):
     class Meta:
         model = motoboy_model.Courier
         fields = ['id', 'name', 'phone_number', 'license_plate']
+
+    def validate_phone_number(self, value):
+        number = re.sub(r'\D', '', value)
+
+        if len(number) > 9:
+            raise ValidationError("Phone number cannot exceed 9 digits.")
+        
+        if not re.match(r'^(92|93|94|97)\d{7}$', number):
+            raise ValidationError("Number must be Unitel (starts with 92, 93, 94 ou 97) and must have 9 digits total.")
+        
+        if not number.isdigit():
+             raise ValidationError("Phone number must contain only digits.")
+
+        return number

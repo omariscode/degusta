@@ -40,6 +40,8 @@ class ProductListView(generics.ListAPIView):
     permission_classes = [permissions.AllowAny]
 
 class ProductDetailView(generics.RetrieveUpdateDestroyAPIView): 
+    lookup_field = 'pk'
+
     queryset = product_model.Product.objects.all()
     serializer_class = ProductSerializer
     permission_classes = [permissions.AllowAny]
