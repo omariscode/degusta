@@ -38,12 +38,6 @@ class User(AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD = 'phone'
     REQUIRED_FIELDS = ['name']
 
-    def clean(self):
-        if not re.match(r'^(92|93|94|97)\d{7}$', self.phone):
-            raise ValidationError({
-                'phone': "Number must be Unitel (starts with 92, 93, 94 ou 97) and must have 9 digits total."
-            })
-
     def save(self, *args, **kwargs):
         self.phone = str(self.phone).strip()
         if self.phone.startswith('+244'):
