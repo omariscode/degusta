@@ -72,6 +72,7 @@ CORS_ALLOW_ALL_ORIGINS = False
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "https://degusta.onrender.com",
+    "https://degusta-web-admin.vercel.app"
 ]
 CORS_ALLOW_CREDENTIALS = True
 
