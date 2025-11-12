@@ -136,4 +136,3 @@ class AdminCourierCreateView(generics.CreateAPIView):
     serializer_class = CourierSerializer
     queryset = motoboy_model.Courier.objects.all()
 
-    

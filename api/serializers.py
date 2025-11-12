@@ -1,7 +1,7 @@
 import re
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
-from .models import invoice_model, order_model, product_model, user_model, motoboy_model
+from .models import invoice_model, order_model, product_model, user_model, motoboy_model, notification_model
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -113,3 +113,8 @@ class CourierSerializer(serializers.ModelSerializer):
              raise ValidationError("Phone number must contain only digits.")
 
         return number
+    
+class NotificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = notification_model.Notification
+        fields = ['id', 'message', 'created_at']

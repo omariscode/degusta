@@ -1,26 +1,28 @@
-import os
-from twilio.rest import Client
-import logging
+# utils/sms.py
+import requests
 
-logger = logging.getLogger(__name__)
+token = "aa9ba784-36a7-49e7-ac37-8a838558b133"
 
-ACCOUNT_SID = os.getenv('TWILIO_ACCOUNT_SID')
-AUTH_TOKEN = os.getenv('TWILIO_AUTH_TOKEN')
+def send_sms(message: str, to: str, sender: str = "952276121", schedule: str = None):
+    url = "https://api.useombala.ao/v1/messages"
+    payload = {
+        "message": message,
+        "from": sender,
+        "to": to,
+    }
 
-client = Client(ACCOUNT_SID, AUTH_TOKEN)
+    if schedule:
+        payload["schedule"] = schedule
 
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {token}"
+    }
 
-def send_sms(phone: list, text: str) -> bool:
+    response = requests.post(url, json=payload, headers=headers)
 
-    try:    
-        message = client.messages.create(
-            body=text,
-            from_='+18777804236',  
-            to=phone
-        )
-        logger.info(f"SMS sent to {phone}: {message.account_sid}")
-    except Exception as e:
-        logger.error(f"Failed to send SMS to {phone}: {e}")
-        return False
-    
-    return True
+    if response.status_code == 201:
+        return {"success": True, "data": response.json()}
+    else:
+        return {"success": False, "error": response.text}
+   

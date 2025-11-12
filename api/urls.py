@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import auth as auth_views
-from .views import product_views, admin_views, motoboy_view, source_views
+from .views import product_views, admin_views, motoboy_view, source_views, notification_views
 from .views import order_views
 from rest_framework_simplejwt.views import (
 	TokenObtainPairView,
@@ -28,9 +28,12 @@ urlpatterns = [
     path('admin/sources/', source_views.GetReferralStatsView.as_view(), name='admin-get-sources'),
     path('sources/', source_views.PostReferralStatsView.as_view(), name='Create-Source'),
 	path('admin/users/', admin_views.AdminUserListView.as_view(), name='admin-user-list'),
+    path('admin/notify/', notification_views.NotificationListView.as_view(), name='notification-list'),
+    
 	# orders / checkout
 	path('checkout/', order_views.CheckoutView.as_view(), name='checkout'),
 	path('orders/<int:pk>/', order_views.OrderDetailView.as_view(), name='order-detail'),
     path('admin/orders/', order_views.OrderList.as_view(), name='list-order'),
 	path('my-orders/', order_views.MyOrdersView.as_view(), name='my-orders'),
+    path("orders/<int:order_id>/send-to-courier/", motoboy_view.send_order_to_courier, name="send_order_to_courier"),
 ]
