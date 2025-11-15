@@ -3,6 +3,7 @@ import requests
 
 token = "aa9ba784-36a7-49e7-ac37-8a838558b133"
 
+
 def send_sms(message: str, to: str, sender: str = "952276121", schedule: str = None):
     url = "https://api.useombala.ao/v1/messages"
     payload = {
@@ -14,10 +15,7 @@ def send_sms(message: str, to: str, sender: str = "952276121", schedule: str = N
     if schedule:
         payload["schedule"] = schedule
 
-    headers = {
-        "Content-Type": "application/json",
-        "Authorization": f"Bearer {token}"
-    }
+    headers = {"Content-Type": "application/json", "Authorization": f"Bearer {token}"}
 
     response = requests.post(url, json=payload, headers=headers)
 
@@ -25,4 +23,3 @@ def send_sms(message: str, to: str, sender: str = "952276121", schedule: str = N
         return {"success": True, "data": response.json()}
     else:
         return {"success": False, "error": response.text}
-   

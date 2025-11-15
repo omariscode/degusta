@@ -19,7 +19,8 @@ def calculate_trend(current, previous):
 
 class AdminStatsView(APIView):
     """Return basic stats for admin dashboard: total sales, orders, users, sales by status."""
-    permission_classes = [permissions.IsAdminUser]  
+
+    permission_classes = [permissions.IsAdminUser]
 
     def get(self, request, format=None):
         # Time ranges
@@ -31,18 +32,24 @@ class AdminStatsView(APIView):
 
         # Base queryset for completed orders
         completed_orders = order_model.Order.objects.filter(
-            status__in=['paid', 'on_the_way', 'delivered']
+            status__in=["paid", "on_the_way", "delivered"]
         )
 
         # Card 1: Total Sales with 30-day trend
-        current_month_sales = completed_orders.filter(
-            created_at__gte=thirty_days_ago
-        ).aggregate(total=Sum('total'))['total'] or 0
-        
-        previous_month_sales = completed_orders.filter(
-            created_at__range=(previous_thirty_days, thirty_days_ago)
-        ).aggregate(total=Sum('total'))['total'] or 0
-            
+        current_month_sales = (
+            completed_orders.filter(created_at__gte=thirty_days_ago).aggregate(
+                total=Sum("total")
+            )["total"]
+            or 0
+        )
+
+        previous_month_sales = (
+            completed_orders.filter(
+                created_at__range=(previous_thirty_days, thirty_days_ago)
+            ).aggregate(total=Sum("total"))["total"]
+            or 0
+        )
+
         sales_trend = calculate_trend(current_month_sales, previous_month_sales)
 
         # Card 2: Total Customers with trend
@@ -55,9 +62,7 @@ class AdminStatsView(APIView):
         customer_trend = calculate_trend(current_customers, previous_customers)
 
         # Card 3: Today's Orders
-        todays_orders = completed_orders.filter(
-            created_at__gte=today
-        ).count()
+        todays_orders = completed_orders.filter(created_at__gte=today).count()
         yesterday_orders = completed_orders.filter(
             created_at__range=(yesterday, today)
         ).count()
@@ -70,69 +75,74 @@ class AdminStatsView(APIView):
         completed_30day_orders = completed_orders.filter(
             created_at__gte=thirty_days_ago
         ).count()
-        completion_rate = (completed_30day_orders / total_30day_orders * 100) if total_30day_orders else 0
+        completion_rate = (
+            (completed_30day_orders / total_30day_orders * 100)
+            if total_30day_orders
+            else 0
+        )
 
         # Daily sales for chart (15 days)
         fifteen_days_ago = today - timedelta(days=15)
-        daily_sales = completed_orders.filter(
-            created_at__gte=fifteen_days_ago
-        ).annotate(
-            day=TruncDay('created_at')
-        ).values('day').annotate(
-            total=Sum('total'),
-            count=Count('id')
-        ).order_by('day')
+        daily_sales = (
+            completed_orders.filter(created_at__gte=fifteen_days_ago)
+            .annotate(day=TruncDay("created_at"))
+            .values("day")
+            .annotate(total=Sum("total"), count=Count("id"))
+            .order_by("day")
+        )
 
         # Format response
-        return Response({
-            'cards': {
-                'total_sales': {
-                    'value': float(current_month_sales),
-                    'trend': round(sales_trend, 1),
-                    'trend_type': 'up' if sales_trend > 0 else 'down',
-                    'period': '30 dias'
+        return Response(
+            {
+                "cards": {
+                    "total_sales": {
+                        "value": float(current_month_sales),
+                        "trend": round(sales_trend, 1),
+                        "trend_type": "up" if sales_trend > 0 else "down",
+                        "period": "30 dias",
+                    },
+                    "customers": {
+                        "value": current_customers,
+                        "trend": round(customer_trend, 1),
+                        "trend_type": "up" if customer_trend > 0 else "down",
+                        "period": "30 dias",
+                    },
+                    "todays_orders": {
+                        "value": todays_orders,
+                        "trend": round(orders_trend, 1),
+                        "trend_type": "up" if orders_trend > 0 else "down",
+                        "period": "24h",
+                    },
+                    "completion_rate": {
+                        "value": round(completion_rate, 1),
+                        "period": "30 dias",
+                    },
                 },
-                'customers': {
-                    'value': current_customers,
-                    'trend': round(customer_trend, 1),
-                    'trend_type': 'up' if customer_trend > 0 else 'down',
-                    'period': '30 dias'
-                },
-                'todays_orders': {
-                    'value': todays_orders,
-                    'trend': round(orders_trend, 1),
-                    'trend_type': 'up' if orders_trend > 0 else 'down',
-                    'period': '24h'
-                },
-                'completion_rate': {
-                    'value': round(completion_rate, 1),
-                    'period': '30 dias'
-                }
-            },
-            'daily_sales': [
-                {
-                    'day': item['day'].strftime('%d'),
-                    'total': float(item['total']),
-                    'count': item['count']
-                }
-                for item in daily_sales
-            ]
-        })
+                "daily_sales": [
+                    {
+                        "day": item["day"].strftime("%d"),
+                        "total": float(item["total"]),
+                        "count": item["count"],
+                    }
+                    for item in daily_sales
+                ],
+            }
+        )
 
 
 class AdminUserListView(generics.ListAPIView):
     permission_classes = [permissions.IsAdminUser]
-    queryset = user_model.User.objects.all().order_by('-id')
+    queryset = user_model.User.objects.all().order_by("-id")
     serializer_class = UserSerializer
 
 
 class AdminCourierListView(generics.ListAPIView):
     permission_classes = [permissions.IsAdminUser]
-    queryset = motoboy_model.Courier.objects.all().order_by('-id')
+    queryset = motoboy_model.Courier.objects.all().order_by("-id")
     serializer_class = CourierSerializer
+
 
 class AdminCourierCreateView(generics.CreateAPIView):
     permission_classes = [permissions.IsAdminUser]
     serializer_class = CourierSerializer
     queryset = motoboy_model.Courier.objects.all()
-

@@ -15,7 +15,9 @@ def generate_invoice_number():
 
 
 class Invoice(models.Model):
-    order = models.OneToOneField('api.Order', on_delete=models.CASCADE, related_name='invoice')
+    order = models.OneToOneField(
+        "api.Order", on_delete=models.CASCADE, related_name="invoice"
+    )
     invoice_number = models.CharField(max_length=64, unique=True, blank=True)
     issued_at = models.DateTimeField(auto_now_add=True)
     due_date = models.DateField(null=True, blank=True)
@@ -41,16 +43,22 @@ class Invoice(models.Model):
             order = self.order
             items = order.items.all()
             if not self.total or float(self.total) == 0:
-                self.total = sum([(item.price or 0) * (item.qty or 0) for item in items]) if items else 0
+                self.total = (
+                    sum([(item.price or 0) * (item.qty or 0) for item in items])
+                    if items
+                    else 0
+                )
 
-            user = getattr(order, 'customer', None)
+            user = getattr(order, "customer", None)
             if user:
                 if not self.billing_name:
-                    self.billing_name = getattr(user, 'name', '') or getattr(user, 'username', '')
+                    self.billing_name = getattr(user, "name", "") or getattr(
+                        user, "username", ""
+                    )
                 if not self.billing_email:
-                    self.billing_email = getattr(user, 'email', '')
+                    self.billing_email = getattr(user, "email", "")
             if not self.billing_address:
-                self.billing_address = getattr(order, 'delivery_address', '') or ''
+                self.billing_address = getattr(order, "delivery_address", "") or ""
         except Exception:
             pass
 
@@ -58,21 +66,18 @@ class Invoice(models.Model):
 
     def render_html(self, request=None):
         order = self.order
-        items = order.items.select_related('product').all()
+        items = order.items.select_related("product").all()
 
         items_ctx = []
         for it in items:
-            items_ctx.append({
-                'name': getattr(it.product, 'name', str(it.product)),
-                'qty': it.qty,
-                'price': it.price,
-                'total': (it.price * it.qty) if it.price is not None else 0,
-            })
+            items_ctx.append(
+                {
+                    "name": getattr(it.product, "name", str(it.product)),
+                    "qty": it.qty,
+                    "price": it.price,
+                    "total": (it.price * it.qty) if it.price is not None else 0,
+                }
+            )
 
-        ctx = {
-            'invoice': self,
-            'order': order,
-            'items': items_ctx,
-            'total': self.total
-        }
-        return render_to_string('invoice_template.html', ctx, request=request)
+        ctx = {"invoice": self, "order": order, "items": items_ctx, "total": self.total}
+        return render_to_string("invoice_template.html", ctx, request=request)

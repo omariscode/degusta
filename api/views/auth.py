@@ -15,7 +15,7 @@ class AdminTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
     def get_token(cls, user):
         if not user.is_superuser:
-            raise serializers.ValidationError('User is not an admin')
+            raise serializers.ValidationError("User is not an admin")
         token = super().get_token(user)
         return token
 
@@ -33,6 +33,7 @@ class RegisterView(generics.CreateAPIView):
 class LoginView(TokenObtainPairView):
     permission_classes = [permissions.AllowAny]
 
+
 class LogoutView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
@@ -42,9 +43,15 @@ class LogoutView(APIView):
             token = RefreshToken(refresh_token)
             token.blacklist()
 
-            return Response({"detail": "Logout efetuado com sucesso"}, status=status.HTTP_205_RESET_CONTENT)
+            return Response(
+                {"detail": "Logout efetuado com sucesso"},
+                status=status.HTTP_205_RESET_CONTENT,
+            )
         except Exception:
-            return Response({"detail": "Token inválido"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"detail": "Token inválido"}, status=status.HTTP_400_BAD_REQUEST
+            )
+
 
 class GetMeView(generics.RetrieveAPIView):
     serializer_class = local_serializers.UserSerializer
