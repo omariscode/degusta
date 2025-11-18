@@ -51,7 +51,7 @@ class AdminStatsView(APIView):
 
         # Card 2: Total Customers with trend
         current_customers = user_model.User.objects.filter(
-            data_joined__gte=thirty_days_ago
+            data_joined__gte=thirty_days_ago, role__name=None
         ).count()
         previous_customers = user_model.User.objects.filter(
             data_joined__range=(previous_thirty_days, thirty_days_ago)

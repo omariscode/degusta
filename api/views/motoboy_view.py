@@ -1,4 +1,6 @@
 from rest_framework import generics, permissions, status
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 from ..models import motoboy_model, order_model
 from ..serializers import CourierSerializer
 from rest_framework.decorators import api_view
@@ -10,6 +12,10 @@ class MotoboyListCreateView(generics.ListCreateAPIView):
     queryset = motoboy_model.Courier.objects.all()
     serializer_class = CourierSerializer
     permission_classes = [permissions.IsAdminUser]
+
+    @method_decorator(cache_page(60 * 5), name="dispatch")
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
 
 
 class MotoboyDelete(generics.DestroyAPIView):

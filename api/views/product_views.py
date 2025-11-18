@@ -1,4 +1,6 @@
 from rest_framework import generics, permissions
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 from ..models import product_model
 from ..serializers import ProductSerializer
 from rest_framework.decorators import api_view
@@ -44,6 +46,9 @@ class ProductListView(generics.ListAPIView):
     serializer_class = ProductSerializer
     permission_classes = [permissions.AllowAny]
 
+    @method_decorator(cache_page(60 * 5), name="dispatch")
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
 
 class ProductDetailView(generics.RetrieveUpdateDestroyAPIView):
     lookup_field = "pk"
@@ -51,6 +56,10 @@ class ProductDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = product_model.Product.objects.all()
     serializer_class = ProductSerializer
     permission_classes = [permissions.AllowAny]
+
+    @method_decorator(cache_page(60 * 5), name="dispatch")
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
 
 class SearchproductView(generics.ListAPIView):
     serializer_class = ProductSerializer
