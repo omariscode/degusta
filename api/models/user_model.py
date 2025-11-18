@@ -6,6 +6,7 @@ from django.contrib.auth.models import (
     PermissionsMixin,
     BaseUserManager,
 )
+from .role_model import Role
 
 
 class UserManager(BaseUserManager):
@@ -36,11 +37,15 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     data_joined = models.DateTimeField(auto_now_add=True)
+    role = models.ForeignKey(Role, on_delete=models.SET_NULL, null=True, default=None)
 
     objects = UserManager()
 
     USERNAME_FIELD = "phone"
     REQUIRED_FIELDS = ["name"]
+
+    def is_superadmin(self):
+        return self.role and self.role.name == "SUPERADMIN"
 
     def save(self, *args, **kwargs):
         self.phone = str(self.phone).strip()

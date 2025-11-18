@@ -4,20 +4,40 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
+from api.permissions import IsSuperAdmin
+from ..models import user_model
 from api import serializers as local_serializers
 
 
 class AdminRegisterView(generics.CreateAPIView):
     serializer_class = local_serializers.AdminRegisterSerializer
+    permission_classes = [IsSuperAdmin]
 
+class SuperAdminRegisterView(generics.CreateAPIView):
+    serializer_class = local_serializers.SuperAdminRegisterSerializer
+    queryset = user_model.User.objects.all()
+    permission_classes = [permissions.AllowAny]
 
 class AdminTokenObtainPairSerializer(TokenObtainPairSerializer):
+
     @classmethod
     def get_token(cls, user):
-        if not user.is_superuser:
-            raise serializers.ValidationError("User is not an admin")
         token = super().get_token(user)
+
+        token["role"] = user.role.name if user.role else None
+
         return token
+
+    def validate(self, attrs):
+        data = super().validate(attrs)
+
+        refresh = self.get_token(self.user)
+
+        data["refresh"] = str(refresh)
+        data["access"] = str(refresh.access_token)
+
+        return data
+
 
 
 class AdminLoginView(TokenObtainPairView):

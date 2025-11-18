@@ -77,6 +77,13 @@ urlpatterns = [
         notification_views.NotificationListView.as_view(),
         name="notification-list",
     ),
+    path(
+        "admin/create-role/",
+        admin_views.AdminCreateRole.as_view(),
+        name="admin-create-role",
+    ),
+    path("admin/create-superadmin/", auth_views.SuperAdminRegisterView.as_view(), name="admin-create-superadmin"),
+
     # orders / checkout
     path("checkout/", order_views.CheckoutView.as_view(), name="checkout"),
     path(

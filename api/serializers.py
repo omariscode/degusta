@@ -8,6 +8,7 @@ from .models import (
     user_model,
     motoboy_model,
     notification_model,
+    role_model
 )
 
 
@@ -16,7 +17,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = user_model.User
-        fields = ["id", "email", "name", "phone", "is_active", "password"]
+        fields = ["id", "email", "name", "phone", "role" ,"is_active", "password"]
 
     def validate_phone(self, value):
         number = re.sub(r"\D", "", value)
@@ -57,6 +58,24 @@ class AdminRegisterSerializer(serializers.ModelSerializer):
         user.is_active = True
         user.is_staff = True
         user.is_superuser = True
+        user.save()
+        return user
+    
+class SuperAdminRegisterSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True, required=True)
+
+    class Meta:
+        model = user_model.User
+        fields = ["id", "email", "name", "phone", "password"]
+
+    def create(self, validated_data):
+        password = validated_data.pop("password")
+        user = user_model.User.objects.create(**validated_data)
+        user.set_password(password)
+        user.is_active = True
+        user.is_staff = True
+        user.is_superuser = True
+        user.role = role_model.Role.objects.get(name="SUPERADMIN")
         user.save()
         return user
 
@@ -142,3 +161,8 @@ class NotificationSerializer(serializers.ModelSerializer):
     class Meta:
         model = notification_model.Notification
         fields = ["id", "message", "created_at"]
+
+class RoleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = role_model.Role
+        fields = ["id", "name"]
