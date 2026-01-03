@@ -75,7 +75,7 @@ class SuperAdminRegisterSerializer(serializers.ModelSerializer):
         user.is_active = True
         user.is_staff = True
         user.is_superuser = True
-        user.role = role_model.Role.objects.get(name="SUPERADMIN")
+        user.role, created = role_model.Role.objects.get_or_create(name="SUPERADMIN")
         user.save()
         return user
 
