@@ -3,7 +3,7 @@ from django.dispatch import receiver
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 
-from .models import product_model, order_model, notification_model
+from .models import marketing_model, product_model, order_model
 
 channel_layer = get_channel_layer()
 
@@ -14,7 +14,6 @@ def broadcast(message: dict):
     async_to_sync(channel_layer.group_send)(
         "notifications", {"type": "notify", "message": message}
     )
-
 
 @receiver(post_save, sender=product_model.Product)
 def product_saved(sender, instance, created, **kwargs):
@@ -41,12 +40,14 @@ def order_saved(sender, instance, created, **kwargs):
     )
 
 
-@receiver(post_save, sender=notification_model.Notification)
-def notification_saved(sender, instance, created, **kwargs):
+@receiver(post_save, sender=marketing_model.Marketing)
+def marketing_saved(sender, instance, created, **kwargs):
     broadcast(
         {
-            "event": "notification_created" if created else "notification_updated",
-            "message": instance.message,
-            "created_at": instance.created_at.isoformat(),
+            "event": "marketing_created" if created else "marketing_updated",
+            "id": instance.id,
+            "title": instance.title,
+            "cover": instance.cover,
         }
     )
+

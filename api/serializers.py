@@ -3,11 +3,11 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from .models import (
     invoice_model,
+    marketing_model,
     order_model,
     product_model,
     user_model,
     motoboy_model,
-    notification_model,
     role_model
 )
 
@@ -157,10 +157,10 @@ class CourierSerializer(serializers.ModelSerializer):
         return number
 
 
-class NotificationSerializer(serializers.ModelSerializer):
+class MarketingSerializer(serializers.ModelSerializer):
     class Meta:
-        model = notification_model.Notification
-        fields = ["id", "message", "created_at"]
+        model = marketing_model.Marketing
+        fields = ["id", "title", "cover"]
 
 class RoleSerializer(serializers.ModelSerializer):
     class Meta:

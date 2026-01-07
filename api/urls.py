@@ -1,11 +1,10 @@
 from django.urls import path
-from .views import auth as auth_views
+from .views import auth as auth_views, marketing_views
 from .views import (
     product_views,
     admin_views,
     motoboy_view,
     source_views,
-    notification_views,
 )
 from .views import order_views
 from rest_framework_simplejwt.views import (
@@ -60,7 +59,10 @@ urlpatterns = [
         motoboy_view.MotoboyDelete.as_view(),
         name="Delete-Motoboy",
     ),
-    path("admin/stats/", admin_views.AdminStatsView.as_view(), name="admin-stats"),
+    path("admin/stats/weekly/", admin_views.AdminStatsView.as_view(), name="admin-stats"),
+    path("admin/stats/annual/", admin_views.AdminAnnualStatsView.as_view(), name="admin-annual-stats"),
+    path("admin/stats/monthly/", admin_views.AdminMonthlyStatsView.as_view(), name="admin-monthly-stats"),
+    path("admin/stats/daily/", admin_views.AdminDailyStatsView.as_view(), name="admin-daily-stats"),
     path(
         "admin/sources/",
         source_views.GetReferralStatsView.as_view(),
@@ -73,9 +75,24 @@ urlpatterns = [
         "admin/users/", admin_views.AdminUserListView.as_view(), name="admin-user-list"
     ),
     path(
-        "admin/notify/",
-        notification_views.NotificationListView.as_view(),
-        name="notification-list",
+        "admin/marketing/create/",
+        marketing_views.create_marketing,
+        name="marketing-create",
+    ),
+    path(
+        "admin/marketing/",
+        marketing_views.MarketingListView.as_view(),
+        name="marketing-list",
+    ),
+    path(
+        "admin/marketing/<int:pk>/",
+        marketing_views.MarketingDetailView.as_view(),
+        name="marketing-detail",
+    ),
+    path(
+        "admin/marketing/<int:pk>/delete/",
+        marketing_views.MarketingDeleteView.as_view(),
+        name="marketing-delete",
     ),
     path(
         "admin/create-role/",
