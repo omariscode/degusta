@@ -160,7 +160,7 @@ class CourierSerializer(serializers.ModelSerializer):
 class MarketingSerializer(serializers.ModelSerializer):
     class Meta:
         model = marketing_model.Marketing
-        fields = ["id", "title", "cover"]
+        fields = ["id", "cover"]
 
 class RoleSerializer(serializers.ModelSerializer):
     class Meta:
