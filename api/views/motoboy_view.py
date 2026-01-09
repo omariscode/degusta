@@ -19,7 +19,7 @@ class MotoboyListCreateView(generics.ListCreateAPIView):
 
 
 class MotoboyDelete(generics.DestroyAPIView):
-    lookup_field = "pk"
+    lookup_field = "id"
 
     queryset = motoboy_model.Courier.objects.all()
     serializer_class = CourierSerializer
@@ -27,7 +27,7 @@ class MotoboyDelete(generics.DestroyAPIView):
 
 
 class MotoboyUpdate(generics.UpdateAPIView):
-    lookup_field = "pk"
+    lookup_field = "id"
 
     queryset = motoboy_model.Courier.objects.all()
     serializer_class = CourierSerializer

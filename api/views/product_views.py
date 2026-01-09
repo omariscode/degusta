@@ -39,6 +39,36 @@ def create_product(request):
 
     except Exception as e:
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+@api_view(["PUT"])
+def update_product(request, id):
+    try:
+        product = product_model.Product.objects.get(id=id)
+    except product_model.Product.DoesNotExist:
+        return Response(
+            {"error": "Product not found"}, status=status.HTTP_404_NOT_FOUND
+        )
+
+    data = request.data.copy()
+
+    if "image" in request.FILES:
+        image_file = request.FILES["image"]
+        image_url = upload_to_cloudinary_product(image_file)
+        data["image"] = image_url
+
+    serializer = ProductSerializer(product, data=data, partial=True)
+
+    if serializer.is_valid():
+        updated_product = serializer.save()
+        return Response(
+            {
+                "message": "Product updated successfully!",
+                "product": ProductSerializer(updated_product).data,
+            },
+            status=status.HTTP_200_OK,
+        )
+
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ProductListView(generics.ListAPIView):
@@ -51,7 +81,7 @@ class ProductListView(generics.ListAPIView):
         return super().get(request, *args, **kwargs)
 
 class ProductDetailView(generics.RetrieveUpdateDestroyAPIView):
-    lookup_field = "pk"
+    lookup_field = "id"
 
     queryset = product_model.Product.objects.all()
     serializer_class = ProductSerializer

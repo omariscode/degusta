@@ -28,7 +28,7 @@ class CheckoutView(views.APIView):
 
 
 class OrderDetailView(generics.RetrieveAPIView):
-    lookup_field = "pk"
+    lookup_field = "id"
 
     permission_classes = [permissions.IsAuthenticated]
     queryset = order_model.Order.objects.all()
@@ -47,6 +47,49 @@ class OrderList(generics.ListAPIView):
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
 
+class AcceptOrderView(views.APIView):
+    permission_classes = [permissions.IsAdminUser]
+
+    def post(self, request, id):
+        try:
+            order = order_model.Order.objects.get(id=id)
+            order.status = "accepted"
+            order.save()
+            return Response(
+                {"detail": "Order accepted successfully."},
+                status=status.HTTP_200_OK,
+            )
+        except order_model.Order.DoesNotExist:
+            return Response(
+                {"detail": "Order not found."}, status=status.HTTP_404_NOT_FOUND
+            )
+        except Exception as e:
+            return Response(
+                {"detail": "Internal error"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+class RejectOrderView(views.APIView):
+    permission_classes = [permissions.IsAdminUser]
+
+    def post(self, request, id):
+        try:
+            order = order_model.Order.objects.get(id=id)
+            order.status = "rejected"
+            order.save()
+            return Response(
+                {"detail": "Order rejected successfully."},
+                status=status.HTTP_200_OK,
+            )
+        except order_model.Order.DoesNotExist:
+            return Response(
+                {"detail": "Order not found."}, status=status.HTTP_404_NOT_FOUND
+            )
+        except Exception as e:
+            return Response(
+                {"detail": "Internal error"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
 
 class MyOrdersView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]

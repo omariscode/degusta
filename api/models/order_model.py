@@ -6,7 +6,8 @@ from django.db import models
 class Order(models.Model):
     STATUS_CHOICES = [
         ("pending", "Pendente"),
-        ("paid", "Pago"),
+        ("accepted", "Aceito"),
+        ("rejected", "Rejeitado"),
         ("on_the_way", "A caminho"),
         ("delivered", "Entregue"),
         ("canceled", "Cancelado"),

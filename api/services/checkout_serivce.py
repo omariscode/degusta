@@ -21,7 +21,7 @@ class CheckoutService:
             qty = int(item.get("qty", 0))
             product = (
                 product_model.Product.objects.select_for_update()
-                .filter(pk=product_id)
+                .filter(id=product_id)
                 .first()
             )
             if not product:

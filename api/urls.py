@@ -35,7 +35,12 @@ urlpatterns = [
     ),
     path("admin/product/", product_views.create_product, name="product-create"),
     path(
-        "products/<int:pk>/",
+        "admin/product/<int:id>/",
+        product_views.update_product,
+        name="product-update",
+    ),
+    path(
+        "products/<int:id>/",
         product_views.ProductDetailView.as_view(),
         name="product-detail",
     ),
@@ -50,12 +55,12 @@ urlpatterns = [
         name="motoboy-list-create",
     ),
     path(
-        "admin/update-motoboy/<int:pk>",
+        "admin/update-motoboy/<int:id>",
         motoboy_view.MotoboyUpdate.as_view(),
         name="Update-Motoboy",
     ),
     path(
-        "admin/delete-motoboy/<int:pk>/",
+        "admin/delete-motoboy/<int:id>/",
         motoboy_view.MotoboyDelete.as_view(),
         name="Delete-Motoboy",
     ),
@@ -85,12 +90,12 @@ urlpatterns = [
         name="marketing-list",
     ),
     path(
-        "admin/marketing/<int:pk>/",
+        "admin/marketing/<int:id>/",
         marketing_views.MarketingDetailView.as_view(),
         name="marketing-detail",
     ),
     path(
-        "admin/marketing/<int:pk>/delete/",
+        "admin/marketing/<int:id>/delete/",
         marketing_views.MarketingDeleteView.as_view(),
         name="marketing-delete",
     ),
@@ -104,7 +109,17 @@ urlpatterns = [
     # orders / checkout
     path("checkout/", order_views.CheckoutView.as_view(), name="checkout"),
     path(
-        "orders/<int:pk>/", order_views.OrderDetailView.as_view(), name="order-detail"
+        "orders/<int:id>/", order_views.OrderDetailView.as_view(), name="order-detail"
+    ),
+    path(
+        "admin/order/<int:id>/accept/",
+        order_views.AcceptOrderView.as_view(),
+        name="accept-order",
+    ),
+    path(
+        "admin/order/<int:id>/reject/",
+        order_views.RejectOrderView.as_view(),
+        name="reject-order",
     ),
     path("admin/orders/", order_views.OrderList.as_view(), name="list-order"),
     path("my-orders/", order_views.MyOrdersView.as_view(), name="my-orders"),
