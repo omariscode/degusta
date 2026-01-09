@@ -44,7 +44,7 @@ class CheckoutService:
             product.stock -= qty
             product.save()
 
-        order.status = "paid"
+        order.status = "pending"
         order.save()
 
         invoice = invoice_model.Invoice.objects.create(order=order)
