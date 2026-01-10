@@ -172,6 +172,8 @@ class CourierSerializer(serializers.ModelSerializer):
 
 class MarketingSerializer(serializers.ModelSerializer):
     products = serializers.SerializerMethodField()
+    start_date = serializers.DateField(format="%d-%m-%Y", input_formats=["%d-%m-%Y", "%Y-%m-%d"], required=False)
+    end_date = serializers.DateField(format="%d-%m-%Y", input_formats=["%d-%m-%Y", "%Y-%m-%d"], required=False)
 
     class Meta:
         model = marketing_model.Marketing

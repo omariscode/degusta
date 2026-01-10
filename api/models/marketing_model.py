@@ -8,8 +8,8 @@ class Marketing(models.Model):
     discount_percent = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
     is_combo = models.BooleanField(default=False)
 
-    start_date = models.DateTimeField(default=timezone.now)
-    end_date = models.DateTimeField(null=True, blank=True)
+    start_date = models.DateField(default=timezone.now)
+    end_date = models.DateField(null=True, blank=True)
 
     is_active = models.BooleanField(default=True)
 
