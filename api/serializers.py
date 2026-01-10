@@ -178,7 +178,7 @@ class MarketingSerializer(serializers.ModelSerializer):
     class Meta:
         model = marketing_model.Marketing
         fields = [
-            "id", "title", "cover", "description",
+            "id", "title", "cover",
             "discount_percent", "is_combo",
             "start_date", "end_date",
             "products"
