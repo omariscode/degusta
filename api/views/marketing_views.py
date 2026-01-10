@@ -1,10 +1,12 @@
+from django.shortcuts import get_object_or_404
 from rest_framework import generics, status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from ..utils.cloud import upload_to_cloudinary_marketing
-from ..models import marketing_model
+from ..models import marketing_model, product_model
 from ..serializers import MarketingSerializer
 from rest_framework import permissions
+from datetime import timezone
 
 @api_view(["POST"])
 def create_marketing(request):
@@ -37,16 +39,34 @@ def create_marketing(request):
     except Exception as e:
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-class MarketingListView(generics.ListAPIView):
-    queryset = marketing_model.Marketing.objects.all()
-    serializer_class = MarketingSerializer
-    permission_classes = [permissions.AllowAny]
+@api_view(["GET"])
+def active_marketing(request):
+    now = timezone.now()
+    campaigns = marketing_model.Marketing.objects.filter(
+        is_active=True,
+        start_date__lte=now,
+        end_date__gte=now
+    )
+    serializer = MarketingSerializer(campaigns, many=True)
+    return Response(serializer.data)
 
-class MarketingDetailView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = marketing_model.Marketing.objects.all()
-    serializer_class = MarketingSerializer 
-    permission_classes = [permissions.AllowAny]
-    lookup_field = 'id'
+
+@api_view(["GET"])
+def marketing_detail(request, id):
+    campaign = get_object_or_404(marketing_model.Marketing, id=id)
+    serializer = MarketingSerializer(campaign)
+    return Response(serializer.data)
+
+@api_view(["POST"])
+def add_products_to_marketing(request, id):
+    campaign = get_object_or_404(marketing_model.Marketing, id=id)
+    product_ids = request.data.get("products", [])
+
+    products = product_model.Product.objects.filter(id__in=product_ids)
+    campaign.products.add(*products)
+
+    return Response({"message": "Produtos adicionados com sucesso"})
+
 
 class MarketingDeleteView(generics.DestroyAPIView):
     queryset = marketing_model.Marketing.objects.all()

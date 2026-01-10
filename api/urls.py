@@ -85,13 +85,18 @@ urlpatterns = [
         name="marketing-create",
     ),
     path(
+        "admin/marketing/<int:id>/add-products/",
+        marketing_views.add_products_to_marketing,
+        name="add-products-to-marketing",
+    ),
+    path(
         "admin/marketing/",
-        marketing_views.MarketingListView.as_view(),
+        marketing_views.active_marketing,
         name="marketing-list",
     ),
     path(
         "admin/marketing/<int:id>/",
-        marketing_views.MarketingDetailView.as_view(),
+        marketing_views.marketing_detail,
         name="marketing-detail",
     ),
     path(

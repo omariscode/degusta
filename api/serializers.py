@@ -82,9 +82,21 @@ class SuperAdminRegisterSerializer(serializers.ModelSerializer):
 
 
 class ProductSerializer(serializers.ModelSerializer):
+    final_price = serializers.SerializerMethodField()
+
     class Meta:
         model = product_model.Product
-        fields = ["id", "name", "slug", "description", "price", "stock", "image"]
+        fields = ["id", "name", "price", "final_price", "image"]
+
+    def get_final_price(self, product):
+        campaign = self.context.get("campaign")
+
+        if campaign and campaign.discount_percent:
+            discount = (campaign.discount_percent / 100) * product.price
+            return round(product.price - discount, 2)
+
+        return product.price
+
 
 
 class InvoiceSerializer(serializers.ModelSerializer):
@@ -159,9 +171,25 @@ class CourierSerializer(serializers.ModelSerializer):
 
 
 class MarketingSerializer(serializers.ModelSerializer):
+    products = serializers.SerializerMethodField()
+
     class Meta:
         model = marketing_model.Marketing
-        fields = ["id","title", "cover"]
+        fields = [
+            "id", "title", "cover", "description",
+            "discount_percent", "is_combo",
+            "start_date", "end_date",
+            "products"
+        ]
+
+    def get_products(self, obj):
+        serializer = ProductSerializer(
+            obj.products.all(),
+            many=True,
+            context={"campaign": obj}
+        )
+        return serializer.data
+
 
 class RoleSerializer(serializers.ModelSerializer):
     class Meta:
