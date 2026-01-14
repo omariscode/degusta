@@ -6,7 +6,7 @@ from ..utils.cloud import upload_to_cloudinary_marketing
 from ..models import marketing_model, product_model
 from ..serializers import MarketingSerializer
 from rest_framework import permissions
-from datetime import timezone
+from django.utils import timezone
 
 @api_view(["POST"])
 def create_marketing(request):
