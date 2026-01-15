@@ -30,7 +30,7 @@ urlpatterns = [
     path("auth/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
     path("auth/me/", user_views.GetMeView.as_view(), name="auth-me"),
     path("auth/user/update/<int:id>/", user_views.UserUpdateView.as_view(), name="auth-user-update"),
-    path("auth/user/delete/", user_views.DeleteAccountView.as_view(), name="auth-user-delete"),
+    path("auth/user/delete/<int:id>/", user_views.DeleteAccountView.as_view(), name="auth-user-delete"),
     path("auth/logout/", auth_views.LogoutView.as_view(), name="logout"),
     path(
         "get-products/",
