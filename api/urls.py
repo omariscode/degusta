@@ -1,10 +1,12 @@
 from django.urls import path
-from .views import auth as auth_views, marketing_views
 from .views import (
     product_views,
     admin_views,
     motoboy_view,
     source_views,
+    marketing_views,
+    auth_views,
+    user_views,
 )
 from .views import order_views
 from rest_framework_simplejwt.views import (
@@ -26,7 +28,9 @@ urlpatterns = [
         name="auth-admin-login",
     ),
     path("auth/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
-    path("auth/me/", auth_views.GetMeView.as_view(), name="auth-me"),
+    path("auth/me/", user_views.GetMeView.as_view(), name="auth-me"),
+    path("auth/user/update/<int:id>/", user_views.UserUpdateView.as_view(), name="auth-user-update"),
+    path("auth/user/delete/", user_views.DeleteAccountView.as_view(), name="auth-user-delete"),
     path("auth/logout/", auth_views.LogoutView.as_view(), name="logout"),
     path(
         "get-products/",

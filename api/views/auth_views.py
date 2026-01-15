@@ -1,7 +1,5 @@
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
-from django.utils.decorators import method_decorator
-from django.views.decorators.cache import cache_page
 from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
@@ -73,16 +71,4 @@ class LogoutView(APIView):
             return Response(
                 {"detail": "Token inválido"}, status=status.HTTP_400_BAD_REQUEST
             )
-
-
-class GetMeView(generics.RetrieveAPIView):
-    serializer_class = local_serializers.UserSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
-    def get_object(self):
-        return self.request.user
-    
-    @method_decorator(cache_page(60 * 60 * 2), name="dispatch")
-    def get(self, request, *args, **kwargs):
-        return super().get(request, *args, **kwargs)   
     
