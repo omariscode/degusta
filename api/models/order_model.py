@@ -23,7 +23,7 @@ class Order(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"Pedido #{self.id} - {self.customer.username}"
+        return f"Pedido #{self.id} - {self.customer.name}"
 
 
 class OrderItem(models.Model):

@@ -35,7 +35,7 @@ def order_saved(sender, instance, created, **kwargs):
         {
             "event": "order_created" if created else "order_updated",
             "id": instance.id,
-            "customer_name": instance.customer.username,
+            "customer_name": instance.customer.name,
             "total": str(instance.total),
         }
     )
