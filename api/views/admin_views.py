@@ -2,6 +2,8 @@ from rest_framework import generics, permissions
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.db.models import Sum, Count
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 from django.db.models.functions import TruncDay, TruncMonth, TruncYear
 from django.utils import timezone
 from datetime import timedelta
@@ -20,6 +22,7 @@ class AdminStatsView(APIView):
 
     permission_classes = [permissions.IsAdminUser]
 
+    @method_decorator(cache_page(60 * 10))
     def get(self, request, format=None):
         # Time ranges
         now = timezone.now()
@@ -152,6 +155,7 @@ class AdminCreateRole(generics.CreateAPIView):
 class AdminAnnualStatsView(APIView):
     permission_classes = [permissions.IsAdminUser]
 
+    @method_decorator(cache_page(60 * 10))
     def get(self, request, format=None):
         now = timezone.now()
         current_year_start = now.replace(month=1, day=1, hour=0, minute=0, second=0, microsecond=0)
@@ -246,6 +250,7 @@ class AdminAnnualStatsView(APIView):
 class AdminMonthlyStatsView(APIView):
     permission_classes = [permissions.IsAdminUser]
 
+    @method_decorator(cache_page(60 * 10))
     def get(self, request, format=None):
         now = timezone.now()
         current_month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
@@ -340,6 +345,7 @@ class AdminMonthlyStatsView(APIView):
 class AdminDailyStatsView(APIView):
     permission_classes = [permissions.IsAdminUser]
 
+    @method_decorator(cache_page(60 * 10))
     def get(self, request, format=None):
         now = timezone.now()
         today = now.replace(hour=0, minute=0, second=0, microsecond=0)

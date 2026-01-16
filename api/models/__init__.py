@@ -4,6 +4,8 @@ from . import order_model
 from . import invoice_model
 from . import motoboy_model
 from . import marketing_model
+from . import source_model
+from . import notification_model
 
 __all__ = [
     "user_model",
@@ -12,4 +14,6 @@ __all__ = [
     "invoice_model",
     "motoboy_model",
     "marketing_model",
+    "source_model",
+    "notification_model",
 ]

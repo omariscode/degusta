@@ -1,6 +1,8 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import generics, status
 from rest_framework.decorators import api_view
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 from rest_framework.response import Response
 from ..utils.cloud import upload_to_cloudinary_marketing
 from ..models import marketing_model, product_model
@@ -39,6 +41,7 @@ def create_marketing(request):
     except Exception as e:
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+@cache_page(60 * 5)
 @api_view(["GET"])
 def active_marketing(request):
     now = timezone.now()
@@ -51,11 +54,15 @@ def active_marketing(request):
     return Response(serializer.data)
 
 
-@api_view(["GET"])
-def marketing_detail(request, id):
-    campaign = get_object_or_404(marketing_model.Marketing, id=id)
-    serializer = MarketingSerializer(campaign)
-    return Response(serializer.data)
+class MarketingDetailView(generics.RetrieveAPIView):
+    queryset = marketing_model.Marketing.objects.all()
+    serializer_class = MarketingSerializer    
+    permission_classes = [permissions.AllowAny]
+    lookup_field = 'id'
+
+    @method_decorator(cache_page(60 * 5), name="dispatch")
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
 
 @api_view(["POST"])
 def add_products_to_marketing(request, id):

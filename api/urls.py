@@ -100,7 +100,7 @@ urlpatterns = [
     ),
     path(
         "admin/marketing/<int:id>/",
-        marketing_views.marketing_detail,
+        marketing_views.MarketingDetailView.as_view(),
         name="marketing-detail",
     ),
     path(
