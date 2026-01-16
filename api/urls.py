@@ -41,7 +41,17 @@ urlpatterns = [
         "my-notifications/",
         user_views.UserNotificationsView.as_view(),
         name="user-notifications"
-    ), 
+    ),
+    path(
+        "mark-all-notifications-read/",
+        user_views.MarkAllNotificationsReadView.as_view(),
+        name="mark-all-notifications-read"
+    ),
+    path(
+        "mark-notification-read/<int:id>/",
+        user_views.MarkNotificationReadView.as_view(),
+        name="mark-notification-read"
+    ),
     path(
         "my-orders/",
         user_views.MyOrdersView.as_view(),
