@@ -151,7 +151,6 @@ urlpatterns = [
         name="reject-order",
     ),
     path("admin/orders/", order_views.OrderList.as_view(), name="list-order"),
-    path("my-orders/", order_views.MyOrdersView.as_view(), name="my-orders"),
     path(
         "orders/<int:order_id>/send-to-courier/",
         motoboy_view.send_order_to_courier,
