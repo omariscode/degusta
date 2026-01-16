@@ -7,8 +7,8 @@ from .views import (
     marketing_views,
     auth_views,
     user_views,
+    order_views
 )
-from .views import order_views
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,

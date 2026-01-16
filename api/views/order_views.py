@@ -1,4 +1,4 @@
-from rest_framework import views, permissions, status, generics, APIView
+from rest_framework import views, permissions, status, generics
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from ..utils.notification import create_order_notification
@@ -48,7 +48,7 @@ class OrderList(generics.ListAPIView):
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
 
-class RejectOrderView(APIView):
+class RejectOrderView(views.APIView):
     permission_classes = [permissions.IsAdminUser]
 
     def post(self, request, id):
@@ -64,7 +64,7 @@ class RejectOrderView(APIView):
             status=status.HTTP_200_OK,
         )
 
-class AdvanceStatusView(APIView):
+class AdvanceStatusView(views.APIView):
     permission_classes = [permissions.IsAdminUser]
 
     STATUS_SEQUENCE = [
