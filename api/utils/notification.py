@@ -1,4 +1,4 @@
-from ..models import Notification
+from ..models import notification_model
 
 STATUS_MESSAGES = {
     "accepted": ("Pedido aceite", "O seu pedido foi aceite e está a ser preparado."),
@@ -15,7 +15,7 @@ def create_order_notification(order):
 
     title, content = data
 
-    Notification.objects.create(
+    notification_model.Notification.objects.create(
         title=title,
         content=content,
         customer=order.customer,
