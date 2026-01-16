@@ -1,9 +1,9 @@
-from rest_framework import views, permissions, status, generics
+from rest_framework import views, permissions, status, generics, APIView
+from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 from rest_framework.response import Response
 from ..services.checkout_serivce import CheckoutService
-
 from ..models import order_model
 from ..serializers import OrderDetailSerializer
 
@@ -47,28 +47,6 @@ class OrderList(generics.ListAPIView):
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
 
-class AcceptOrderView(views.APIView):
-    permission_classes = [permissions.IsAdminUser]
-
-    def post(self, request, id):
-        try:
-            order = order_model.Order.objects.get(id=id)
-            order.status = "accepted"
-            order.save()
-            return Response(
-                {"detail": "Order accepted successfully."},
-                status=status.HTTP_200_OK,
-            )
-        except order_model.Order.DoesNotExist:
-            return Response(
-                {"detail": "Order not found."}, status=status.HTTP_404_NOT_FOUND
-            )
-        except Exception as e:
-            return Response(
-                {"detail": "Internal error"},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            )
-
 class RejectOrderView(views.APIView):
     permission_classes = [permissions.IsAdminUser]
 
@@ -91,6 +69,41 @@ class RejectOrderView(views.APIView):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
+class AdvanceStatusView(APIView):
+    permission_classes = [permissions.IsAdminUser]
+
+    STATUS_SEQUENCE = [
+        "pending",
+        "accepted",
+        "on_the_way",
+        "delivered",
+    ]
+
+    def post(self, request, id):
+        order = get_object_or_404(order_model.Order, id=id)
+
+        if order.status not in self.STATUS_SEQUENCE:
+            return Response(
+                {"detail": "Order status cannot be advanced."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        current_index = self.STATUS_SEQUENCE.index(order.status)
+
+        if current_index == len(self.STATUS_SEQUENCE) - 1:
+            return Response(
+                {"detail": "Order is already in the final status."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        order.status = self.STATUS_SEQUENCE[current_index + 1]
+        order.save()
+
+        return Response(
+            {"detail": f"Order status advanced to {order.status}."},
+            status=status.HTTP_200_OK,
+        )
+    
 class MyOrdersView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = OrderDetailSerializer

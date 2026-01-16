@@ -121,8 +121,8 @@ urlpatterns = [
         "orders/<int:id>/", order_views.OrderDetailView.as_view(), name="order-detail"
     ),
     path(
-        "admin/order/<int:id>/accept/",
-        order_views.AcceptOrderView.as_view(),
+        "admin/order/<int:id>/advance/",
+        order_views.AdvanceStatusView.as_view(),
         name="accept-order",
     ),
     path(
