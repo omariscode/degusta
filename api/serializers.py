@@ -8,7 +8,8 @@ from .models import (
     product_model,
     user_model,
     motoboy_model,
-    role_model
+    role_model,
+    notification_model
 )
 
 
@@ -197,3 +198,14 @@ class RoleSerializer(serializers.ModelSerializer):
     class Meta:
         model = role_model.Role
         fields = ["id", "name"]
+
+
+class NotificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = notification_model.Notification
+        fields = [
+            "id",
+            "title",
+            "content",
+            "created_at",
+        ]

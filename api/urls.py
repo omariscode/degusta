@@ -37,6 +37,16 @@ urlpatterns = [
         product_views.ProductListView.as_view(),
         name="product-list-create",
     ),
+    path(
+        "my-notifications/",
+        user_views.UserNotificationsView.as_view(),
+        name="user-notifications"
+    ), 
+    path(
+        "my-orders/",
+        user_views.MyOrdersView.as_view(),
+        name="my-orders"
+    ),
     path("admin/product/", product_views.create_product, name="product-create"),
     path(
         "admin/product/<int:id>/",

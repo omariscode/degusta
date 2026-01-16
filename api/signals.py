@@ -3,7 +3,7 @@ from django.dispatch import receiver
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 
-from .models import marketing_model, product_model, order_model
+from .models import marketing_model, product_model, order_model, notification_model
 
 channel_layer = get_channel_layer()
 
@@ -52,3 +52,15 @@ def marketing_saved(sender, instance, created, **kwargs):
         }
     )
 
+@receiver(post_save, sender=notification_model.Notification)
+def notification_saved(sender, instance, created, **kwargs):
+    if created:
+        broadcast(
+            {
+                "event": "notification_created",
+                "id": instance.id,
+                "title": instance.title,
+                "content": instance.content,
+                "customer_id": instance.customer.id,
+            }
+        )

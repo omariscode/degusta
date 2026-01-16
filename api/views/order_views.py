@@ -1,6 +1,7 @@
 from rest_framework import views, permissions, status, generics, APIView
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
+from ..utils.notification import create_order_notification
 from django.views.decorators.cache import cache_page
 from rest_framework.response import Response
 from ..services.checkout_serivce import CheckoutService
@@ -47,27 +48,21 @@ class OrderList(generics.ListAPIView):
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
 
-class RejectOrderView(views.APIView):
+class RejectOrderView(APIView):
     permission_classes = [permissions.IsAdminUser]
 
     def post(self, request, id):
-        try:
-            order = order_model.Order.objects.get(id=id)
-            order.status = "rejected"
-            order.save()
-            return Response(
-                {"detail": "Order rejected successfully."},
-                status=status.HTTP_200_OK,
-            )
-        except order_model.Order.DoesNotExist:
-            return Response(
-                {"detail": "Order not found."}, status=status.HTTP_404_NOT_FOUND
-            )
-        except Exception as e:
-            return Response(
-                {"detail": "Internal error"},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            )
+        order = get_object_or_404(order_model.Order, id=id)
+
+        order.status = "rejected"
+        order.save()
+
+        create_order_notification(order)
+
+        return Response(
+            {"detail": "Order rejected successfully."},
+            status=status.HTTP_200_OK,
+        )
 
 class AdvanceStatusView(APIView):
     permission_classes = [permissions.IsAdminUser]
@@ -99,21 +94,10 @@ class AdvanceStatusView(APIView):
         order.status = self.STATUS_SEQUENCE[current_index + 1]
         order.save()
 
+        create_order_notification(order)
+
         return Response(
             {"detail": f"Order status advanced to {order.status}."},
             status=status.HTTP_200_OK,
         )
-    
-class MyOrdersView(generics.ListAPIView):
-    permission_classes = [permissions.IsAuthenticated]
-    serializer_class = OrderDetailSerializer
-
-    def get_queryset(self):
-        return order_model.Order.objects.filter(customer=self.request.user).order_by(
-            "-created_at"
-        )
-    
-    @method_decorator(cache_page(60 * 5), name="dispatch")
-    def get(self, request, *args, **kwargs):
-        return super().get(request, *args, **kwargs)
     
