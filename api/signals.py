@@ -80,8 +80,17 @@ def notification_saved(sender, instance, created, **kwargs):
 
 @receiver(post_save, sender=order_model.Order)
 def order_saved(sender, instance, created, **kwargs):
-    if created or instance.status in ["paid", "on_the_way", "delivered"]:
+    if not instance.pk:
+        return
+
+    previous = order_model.Order.objects.get(pk=instance.pk)
+
+    if (
+        previous.status != instance.status
+        and instance.status in ["accepted", "on_the_way", "delivered"]
+    ):
         broadcast_stats()
+
 
 @receiver(post_save, sender=user_model.User)
 def user_saved(sender, instance, created, **kwargs):
