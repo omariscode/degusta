@@ -71,4 +71,22 @@ class LogoutView(APIView):
             return Response(
                 {"detail": "Token inválido"}, status=status.HTTP_400_BAD_REQUEST
             )
-    
+
+class PasswordResetRequestSMSView(generics.GenericAPIView):
+    serializer_class = local_serializers.PasswordResetRequestSMSSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response({"message": "SMS enviado com sucesso!"})
+
+
+class PasswordResetConfirmSMSView(generics.GenericAPIView):
+    serializer_class = local_serializers.PasswordResetConfirmSMSSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response({"message": "Senha alterada com sucesso!"})

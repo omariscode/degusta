@@ -1,6 +1,5 @@
 from rest_framework import generics, permissions
 from ..models import user_model, notification_model, order_model
-from api.serializers import UserSerializer
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
@@ -9,7 +8,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from ..utils.pagination import NotificationPagination
 
-from ..serializers import NotificationSerializer, OrderDetailSerializer
+from ..serializers import NotificationSerializer, OrderDetailSerializer, UserSerializer
 
 
 

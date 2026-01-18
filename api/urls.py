@@ -31,6 +31,8 @@ urlpatterns = [
     path("auth/me/", user_views.GetMeView.as_view(), name="auth-me"),
     path("auth/user/update/<int:id>/", user_views.UserUpdateView.as_view(), name="auth-user-update"),
     path("auth/user/delete/<int:id>/", user_views.DeleteAccountView.as_view(), name="auth-user-delete"),
+    path("auth/password-reset-request-sms/", auth_views.PasswordResetRequestSMSView.as_view(), name="password-reset-request-sms"),
+    path("auth/password-reset-confirm/", auth_views.PasswordResetConfirmSMSView.as_view(), name="password-reset-confirm"),
     path("auth/logout/", auth_views.LogoutView.as_view(), name="logout"),
     path(
         "get-products/",

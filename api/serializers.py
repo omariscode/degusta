@@ -1,5 +1,7 @@
 import re
+import random
 from rest_framework import serializers
+from .utils.sms import send_sms
 from rest_framework.exceptions import ValidationError
 from .models import (
     invoice_model,
@@ -11,7 +13,10 @@ from .models import (
     role_model,
     notification_model
 )
+from django.contrib.auth import get_user_model
 
+
+User = get_user_model()
 
 class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=False)
@@ -221,3 +226,57 @@ class NotificationSerializer(serializers.ModelSerializer):
             "content",
             "created_at",
         ]
+
+class PasswordResetRequestSMSSerializer(serializers.Serializer):
+    phone = serializers.CharField()
+
+    def validate_phone(self, value):
+        try:
+            user = User.objects.get(phone=value)
+        except User.DoesNotExist:
+            raise serializers.ValidationError("Usuário não encontrado com esse telefone.")
+        return value
+
+    def save(self):
+        phone = self.validated_data["phone"]
+        user = User.objects.get(phone=phone)
+
+        token = str(random.randint(100000, 999999))
+
+        user.password_reset_token = token
+        user.save()
+
+        send_sms(
+            f"Seu código de redefinição de senha é: {token}",
+            to=user.phone
+        )
+        return token
+
+class PasswordResetConfirmSMSSerializer(serializers.Serializer):
+    phone = serializers.CharField()
+    token = serializers.CharField()
+    new_password = serializers.CharField(min_length=8, write_only=True)
+
+    def validate(self, attrs):
+        phone = attrs.get("phone")
+        token = attrs.get("token")
+
+        try:
+            user = User.objects.get(phone=phone)
+        except User.DoesNotExist:
+            raise serializers.ValidationError("Usuário inválido.")
+
+        if user.password_reset_token != token:
+            raise serializers.ValidationError("Token inválido ou expirado.")
+
+        attrs["user"] = user
+        return attrs
+
+    def save(self):
+        user = self.validated_data["user"]
+        new_password = self.validated_data["new_password"]
+
+        user.set_password(new_password)
+        user.password_reset_token = None  
+        user.save()
+        return user
